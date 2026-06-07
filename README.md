@@ -2,6 +2,8 @@
 
 A local-first content generator for the commerce, community, lifestyle, and wellness side of Web3 - the companies, events, creators, and products people can use in real life.
 
+This repository also includes a Vercel-ready static landing page at `index.html`.
+
 The engine turns a curated source list from X, Lu.ma, plan.wtf, Cryptonomads, conference notes, Telegram, or your own research into:
 
 - Daily platform drafts for Twitter/X, LinkedIn, Pinterest, Instagram, Telegram, Discord, and blog posts
@@ -12,6 +14,14 @@ The engine turns a curated source list from X, Lu.ma, plan.wtf, Cryptonomads, co
 - Daily research briefs, source maps, company watchlists, and scored editorial leads
 
 ## Quick start
+
+Open the static landing page locally:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit `http://localhost:8000`.
 
 Generate sample platform drafts:
 
@@ -150,3 +160,21 @@ See `docs/plugin_costs.md` for cost tiers and rollout recommendations.
 ```bash
 python3 -m unittest discover
 ```
+
+## Deploy on Vercel
+
+The project can be deployed as a static site because it includes:
+
+- `index.html`
+- `styles.css`
+- `script.js`
+- `vercel.json`
+
+If `https://everyday-web3.vercel.app/` shows 404, the most likely causes are:
+
+1. Vercel is still pointed at `main` before this branch has been merged.
+2. The Vercel project is not connected to this GitHub repository.
+3. A deployment has not been triggered yet.
+4. The domain is attached to a different Vercel project.
+
+Merge this branch or configure Vercel to deploy `cursor/everyday-web3-content-engine-4d63`, then trigger a redeploy.
