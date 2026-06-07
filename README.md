@@ -15,7 +15,7 @@ The engine turns a curated source list from X, Lu.ma, plan.wtf, Cryptonomads, co
 Run the sample generator:
 
 ```bash
-python -m everyday_web3.cli generate \
+python3 -m everyday_web3 generate \
   --input data/sources.sample.csv \
   --config config/everyday_web3.json \
   --output output \
@@ -27,7 +27,7 @@ Generated files are written to `output/YYYY-MM-DD/`.
 Show recommended workflow plugins:
 
 ```bash
-python -m everyday_web3.cli plugins
+python3 -m everyday_web3 plugins
 ```
 
 ## Source input format
@@ -100,5 +100,5 @@ The generator is built to stay useful before adding paid APIs. Start manually, t
 ## Test
 
 ```bash
-python -m unittest discover
+python3 -m unittest discover
 ```
