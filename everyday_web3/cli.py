@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 from datetime import date
 from pathlib import Path
 
 from . import __version__
 from .engine import EverydayWeb3Engine, load_config, load_sources, write_generation_outputs
+from .mcps import build_cursor_mcp_config, load_mcp_registry, render_mcp_markdown
 from .models import GenerationContext
 from .plugins import recommended_plugins
 from .research import (
@@ -23,6 +25,7 @@ DEFAULT_INPUT = Path("data/sources.sample.csv")
 DEFAULT_OUTPUT = Path("output")
 DEFAULT_REGISTRY = Path("config/source_registry.json")
 DEFAULT_WATCHLIST = Path("data/company_watchlist.sample.csv")
+DEFAULT_MCP_REGISTRY = Path("config/mcp_registry.json")
 
 
 def parse_platforms(value: str) -> list[str]:
@@ -81,6 +84,15 @@ def build_parser() -> argparse.ArgumentParser:
     research.add_argument("--limit", type=int, default=20, help="Maximum scored leads to include.")
 
     subparsers.add_parser("plugins", help="Show useful source, workflow, and publishing plugins.")
+
+    mcps = subparsers.add_parser("mcps", help="Show recommended MCP servers for the research engine.")
+    mcps.add_argument("--registry", type=Path, default=DEFAULT_MCP_REGISTRY, help="Path to MCP registry JSON.")
+    mcps.add_argument(
+        "--format",
+        choices=["markdown", "json", "cursor-config"],
+        default="markdown",
+        help="Output format.",
+    )
 
     return parser
 
@@ -152,6 +164,19 @@ def handle_research(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_mcps(args: argparse.Namespace) -> int:
+    mcps = load_mcp_registry(args.registry)
+    if args.format == "json":
+        print(json.dumps([mcp.__dict__ for mcp in mcps], indent=2))
+        return 0
+    if args.format == "cursor-config":
+        print(json.dumps(build_cursor_mcp_config(mcps), indent=2))
+        return 0
+
+    print(render_mcp_markdown(mcps))
+    return 0
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -162,6 +187,8 @@ def main() -> int:
         return handle_research(args)
     if args.command == "plugins":
         return handle_plugins()
+    if args.command == "mcps":
+        return handle_mcps(args)
 
     parser.error(f"unknown command: {args.command}")
     return 2

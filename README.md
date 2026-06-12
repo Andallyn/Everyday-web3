@@ -54,6 +54,12 @@ Show recommended workflow plugins:
 python3 -m everyday_web3 plugins
 ```
 
+Show recommended MCP servers:
+
+```bash
+python3 -m everyday_web3 mcps
+```
+
 ## Source input format
 
 Create a CSV or JSON file with these fields:
@@ -111,6 +117,7 @@ Edit keywords in the config to tune auto-classification.
 The research layer is built around three files:
 
 - `config/source_registry.json` - websites, X lists, conference pages, event directories, search layers, and derived company sources to monitor.
+- `config/mcp_registry.json` - recommended MCPs for crawling, discovery, editorial ops, browser automation, and community inputs.
 - `data/company_watchlist.sample.csv` - starter watchlist format for companies/accounts building IRL Web3 products.
 - `data/sources.sample.csv` - daily leads that have been collected manually or by future plugins.
 
@@ -147,12 +154,34 @@ The generator is built to stay useful before adding paid APIs. Start manually, t
 
 See `docs/plugin_costs.md` for cost tiers and rollout recommendations.
 
+## Recommended MCPs
+
+The repo includes MCP recommendations and a Cursor config template:
+
+- Registry: `config/mcp_registry.json`
+- Setup guide: `docs/mcp_setup.md`
+- Cursor template: `.cursor/mcp.example.json`
+
+Recommended order:
+
+1. Firecrawl MCP
+2. Exa MCP
+3. Notion MCP
+4. Google Sheets MCP
+5. Browserbase MCP
+6. GitHub MCP
+7. Airtable MCP
+8. Discord MCP
+
+To activate them locally, copy `.cursor/mcp.example.json` to `.cursor/mcp.json`, replace placeholders with your own keys, remove MCPs you are not ready to use, then restart Cursor. Do not commit real secrets.
+
 ## Extending the engine
 
 - Add categories, keywords, platform display names, and hashtags in `config/everyday_web3.json`.
 - Add future collectors by implementing the plugin contract in `everyday_web3/plugins.py`.
 - Add new platform rendering rules in `EverydayWeb3Engine.render_body`.
 - Add monitoring sources in `config/source_registry.json`.
+- Add MCP recommendations in `config/mcp_registry.json`.
 - Add companies from your X list to `data/company_watchlist.sample.csv` or your own watchlist file.
 
 ## Test

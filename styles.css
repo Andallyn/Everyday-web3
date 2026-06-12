@@ -301,6 +301,34 @@ h3 {
   color: var(--muted);
 }
 
+.mcp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mcp-card {
+  min-height: 14rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, rgba(255, 250, 242, 0.92), rgba(220, 238, 231, 0.78));
+}
+
+.mcp-card span {
+  display: inline-flex;
+  margin-bottom: 2rem;
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.mcp-card p,
+.section-heading p:not(.eyebrow) {
+  color: var(--muted);
+}
+
 .dark-panel {
   width: min(1120px, calc(100% - 2rem));
   margin-bottom: 4rem;
@@ -356,6 +384,7 @@ h3 {
   .hero,
   .split,
   .feature-grid,
+  .mcp-grid,
   .workflow {
     grid-template-columns: 1fr;
   }
