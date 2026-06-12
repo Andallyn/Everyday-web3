@@ -1,0 +1,147 @@
+{
+  "sources": [
+    {
+      "name": "Everyday Web3 IRL, health, and lifestyle X list",
+      "url": "https://x.com/i/lists/1970082106794442856",
+      "source_type": "x_list",
+      "track": "both",
+      "cadence": "twice_daily",
+      "plugin": "x_list_collector_or_apify",
+      "priority": 5,
+      "keywords": ["launch", "partnership", "event", "retreat", "wellness", "payment", "irl", "mobile"],
+      "notes": "Primary signal layer for 200+ companies building IRL, health, lifestyle, commerce, and consumer Web3 products."
+    },
+    {
+      "name": "Lu.ma Web3 events",
+      "url": "https://lu.ma",
+      "source_type": "event_directory",
+      "track": "both",
+      "cadence": "daily",
+      "plugin": "firecrawl_or_calendar_feed",
+      "priority": 5,
+      "keywords": ["web3", "crypto", "dao", "wellness", "retreat", "meetup", "conference"],
+      "notes": "Use for event previews, local alpha, wellness retreats, and monthly event roundups."
+    },
+    {
+      "name": "plan.wtf",
+      "url": "https://plan.wtf",
+      "source_type": "event_directory",
+      "track": "morning",
+      "cadence": "daily",
+      "plugin": "firecrawl_or_rss",
+      "priority": 5,
+      "keywords": ["conference", "hackathon", "side event", "summit", "meetup"],
+      "notes": "Strong for conference weeks and global Web3 event discovery."
+    },
+    {
+      "name": "Cryptonomads",
+      "url": "https://cryptonomads.org",
+      "source_type": "event_directory",
+      "track": "both",
+      "cadence": "daily",
+      "plugin": "firecrawl_or_rss",
+      "priority": 5,
+      "keywords": ["nomad", "travel", "conference", "city", "meetup", "coworking"],
+      "notes": "Best fit for travel, city guides, co-working, nomad, and conference-location content."
+    },
+    {
+      "name": "ETHGlobal events",
+      "url": "https://ethglobal.com/events",
+      "source_type": "hackathon_calendar",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl_or_rss",
+      "priority": 4,
+      "keywords": ["hackathon", "builder", "demo", "bounty", "grant"],
+      "notes": "Use for hackathon previews and builder/product coverage."
+    },
+    {
+      "name": "Ethereum Foundation events",
+      "url": "https://ethereum.org/en/community/events/",
+      "source_type": "ecosystem_calendar",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl_or_rss",
+      "priority": 4,
+      "keywords": ["conference", "meetup", "community", "ethereum"],
+      "notes": "Use as a broad ecosystem event source."
+    },
+    {
+      "name": "ETHDenver",
+      "url": "https://www.ethdenver.com",
+      "source_type": "conference_site",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl",
+      "priority": 4,
+      "keywords": ["conference", "denver", "side event", "hackathon", "builder"],
+      "notes": "Conference preview, recap, and Pinterest/event-photo planning."
+    },
+    {
+      "name": "EthCC",
+      "url": "https://www.ethcc.io",
+      "source_type": "conference_site",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl",
+      "priority": 4,
+      "keywords": ["conference", "cannes", "paris", "side event", "community"],
+      "notes": "Conference preview, side-event discovery, and IRL product coverage."
+    },
+    {
+      "name": "Consensus by CoinDesk",
+      "url": "https://consensus.coindesk.com",
+      "source_type": "conference_site",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl",
+      "priority": 4,
+      "keywords": ["conference", "miami", "consensus", "payments", "institutional", "consumer"],
+      "notes": "Useful for major announcements and IRL product demos around Consensus."
+    },
+    {
+      "name": "Token2049 events",
+      "url": "https://www.token2049.com",
+      "source_type": "conference_site",
+      "track": "morning",
+      "cadence": "weekly",
+      "plugin": "firecrawl",
+      "priority": 4,
+      "keywords": ["conference", "singapore", "dubai", "side event", "brand"],
+      "notes": "Use for global conference calendars and city-specific local alpha."
+    },
+    {
+      "name": "Farcaster channels",
+      "url": "https://warpcast.com/~/channels",
+      "source_type": "social_channel_directory",
+      "track": "both",
+      "cadence": "daily",
+      "plugin": "search_or_manual_review",
+      "priority": 3,
+      "keywords": ["consumer", "creator", "event", "fitness", "wellness", "commerce"],
+      "notes": "Useful for creator, social, mobile, and local community signals outside X."
+    },
+    {
+      "name": "Company blogs and changelogs",
+      "url": "watchlist-derived",
+      "source_type": "derived_company_sources",
+      "track": "morning",
+      "cadence": "daily",
+      "plugin": "rss_or_firecrawl",
+      "priority": 5,
+      "keywords": ["launch", "release", "partnership", "merchant", "mobile", "event", "community"],
+      "notes": "Generated from the company watchlist. Track owned blogs, press pages, changelogs, and newsletters."
+    },
+    {
+      "name": "Creator wellness and community search queries",
+      "url": "search-derived",
+      "source_type": "search_query_set",
+      "track": "evening",
+      "cadence": "daily",
+      "plugin": "exa_or_tavily",
+      "priority": 4,
+      "keywords": ["web3 wellness retreat", "crypto creator burnout", "dao meetup", "web3 yoga", "coworking residency"],
+      "notes": "Search discovery layer for the new vertical beyond the known company list."
+    }
+  ]
+}

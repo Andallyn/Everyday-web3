@@ -1,1 +1,180 @@
-# Everyday-web3
+# Everyday Web3 Content Engine
+
+A local-first content generator for the commerce, community, lifestyle, and wellness side of Web3 - the companies, events, creators, and products people can use in real life.
+
+This repository also includes a Vercel-ready static landing page at `index.html`.
+
+The engine turns a curated source list from X, Lu.ma, plan.wtf, Cryptonomads, conference notes, Telegram, or your own research into:
+
+- Daily platform drafts for Twitter/X, LinkedIn, Pinterest, Instagram, Telegram, Discord, and blog posts
+- A morning track for major Web3 news/events
+- An evening track for community, wellness, retreats, co-working, local DAO, and burnout-prevention content
+- A weekly "This Week in IRL Web3" roundup
+- Source briefs with the engine's category classification
+- Daily research briefs, source maps, company watchlists, and scored editorial leads
+
+## Quick start
+
+Open the static landing page locally:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit `http://localhost:8000`.
+
+Generate sample platform drafts:
+
+```bash
+python3 -m everyday_web3 generate \
+  --input data/sources.sample.csv \
+  --config config/everyday_web3.json \
+  --output output \
+  --date 2026-06-07
+```
+
+Generated files are written to `output/YYYY-MM-DD/`.
+
+Generate the media/research desk brief:
+
+```bash
+python3 -m everyday_web3 research \
+  --input data/sources.sample.csv \
+  --registry config/source_registry.json \
+  --watchlist data/company_watchlist.sample.csv \
+  --output output \
+  --date 2026-06-07
+```
+
+Research outputs are written to `output/YYYY-MM-DD/research/`.
+
+Show recommended workflow plugins:
+
+```bash
+python3 -m everyday_web3 plugins
+```
+
+## Source input format
+
+Create a CSV or JSON file with these fields:
+
+| Field | Purpose |
+| --- | --- |
+| `title` | Source title, tweet/event headline, or working content idea |
+| `url` | Link to X, Lu.ma, plan.wtf, Cryptonomads, article, or notes |
+| `summary` | Short description of what happened |
+| `category` | One of the Everyday Web3 buckets; can be blank for auto-classification |
+| `source_type` | `post`, `article`, `event`, `meetup`, `conference`, etc. |
+| `location` | City, country, online, remote, or blank |
+| `event_date` | Date if relevant |
+| `tags` | Comma-separated tags |
+| `people` | Creator, founder, community, or company names |
+| `priority` | 1-5; higher items are generated first |
+| `notes` | Private editorial notes |
+
+See `data/sources.sample.csv` for examples.
+
+## Everyday Web3 buckets
+
+The default taxonomy lives in `config/everyday_web3.json`:
+
+- Travel
+- Food & Drinks
+- Real Estate
+- Lifestyle & Events
+- Shopping
+- Mobile
+- Health and Wellness
+- Fitness
+- Art & Luxury
+- Collectibles
+- Taxes
+- Legal
+- Hackathons
+- Monthly Events
+
+Edit keywords in the config to tune auto-classification.
+
+## Daily workflow
+
+1. Collect sources from your X list, bookmarks, Lu.ma, plan.wtf, Cryptonomads, newsletters, Telegram, and conference notes.
+2. Add the best items to a CSV using the source input format.
+3. Run `python3 -m everyday_web3 research` to score leads and create the daily research brief.
+4. Pick the strongest morning and evening leads.
+5. Run `python3 -m everyday_web3 generate` to create platform drafts.
+6. Review drafts in `output/YYYY-MM-DD/platforms/`.
+7. Paste final versions into your scheduler or publishing tool.
+8. Use `weekly_roundup.md` for "This Week in IRL Web3."
+
+## Media/research engine
+
+The research layer is built around three files:
+
+- `config/source_registry.json` - websites, X lists, conference pages, event directories, search layers, and derived company sources to monitor.
+- `data/company_watchlist.sample.csv` - starter watchlist format for companies/accounts building IRL Web3 products.
+- `data/sources.sample.csv` - daily leads that have been collected manually or by future plugins.
+
+The default source registry includes your X list:
+
+```text
+https://x.com/i/lists/1970082106794442856
+```
+
+The research command creates:
+
+- `daily_research_brief.md` - top leads, morning desk, evening desk, sources to check, and editor checklist
+- `source_map.md` - monitoring plan for websites, feeds, lists, and event sources
+- `company_watchlist.md` - watchlist grouped for editorial use
+- `scored_leads.csv` - lead ranking with category, shift, format, and ranking reasons
+
+Use this flow to track:
+
+- Web3 conference sites and side-event directories
+- Lu.ma, plan.wtf, Cryptonomads, ETHGlobal, ETHDenver, EthCC, Consensus, Token2049, and similar sources
+- Company blogs, changelogs, newsletters, press pages, and X announcements
+- Creator wellness retreats, local DAO meetups, co-working residencies, meditation/yoga sessions, and community rebuilds
+
+## Recommended plugins and integrations
+
+The generator is built to stay useful before adding paid APIs. Start manually, then add integrations as the workflow becomes repeatable:
+
+- X list/bookmark collector via X API, Readwise Reader, Zapier, or Apify
+- Lu.ma, plan.wtf, Cryptonomads, conference, and hackathon event collectors
+- Notion or Airtable editorial desk using the CSV fields as schema
+- Buffer, Typefully, Hypefury, Publer, or similar scheduling tools
+- Canva or Figma templates for Pinterest pins, Instagram carousels, and roundup graphics
+- Zapier or Make automations that move saved links into your source spreadsheet
+
+See `docs/plugin_costs.md` for cost tiers and rollout recommendations.
+
+## Extending the engine
+
+- Add categories, keywords, platform display names, and hashtags in `config/everyday_web3.json`.
+- Add future collectors by implementing the plugin contract in `everyday_web3/plugins.py`.
+- Add new platform rendering rules in `EverydayWeb3Engine.render_body`.
+- Add monitoring sources in `config/source_registry.json`.
+- Add companies from your X list to `data/company_watchlist.sample.csv` or your own watchlist file.
+
+## Test
+
+```bash
+python3 -m unittest discover
+```
+
+## Deploy on Vercel
+
+The project can be deployed as a static site because it includes:
+
+- `index.html`
+- `styles.css`
+- `script.js`
+- `vercel.json`
+
+If `https://everyday-web3.vercel.app/` shows 404, the most likely causes are:
+
+1. Vercel is still pointed at `main` before this branch has been merged.
+2. The Vercel project is not connected to this GitHub repository.
+3. A deployment has not been triggered yet.
+4. The domain is attached to a different Vercel project.
+
+Merge this branch or configure Vercel to deploy `cursor/everyday-web3-content-engine-4d63`, then trigger a redeploy.

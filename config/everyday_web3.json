@@ -1,0 +1,111 @@
+{
+  "brand": {
+    "name": "Everyday Web3",
+    "tagline": "The commerce, community, and lifestyle side of Web3 people can use in real life.",
+    "voice": "curious, practical, concise, optimistic, and allergic to hype"
+  },
+  "categories": [
+    {
+      "name": "Travel",
+      "keywords": ["travel", "nomad", "hotel", "flight", "airline", "visa", "city guide", "conference city"]
+    },
+    {
+      "name": "Food & Drinks",
+      "keywords": ["food", "drink", "restaurant", "cafe", "bar", "coffee", "dining", "reservation"]
+    },
+    {
+      "name": "Real Estate",
+      "keywords": ["real estate", "housing", "property", "residence", "coworking", "coliving", "residency"]
+    },
+    {
+      "name": "Lifestyle & Events",
+      "keywords": ["event", "meetup", "conference", "community", "festival", "irl", "experience", "lifestyle"]
+    },
+    {
+      "name": "Shopping",
+      "keywords": ["shopping", "commerce", "retail", "merchant", "checkout", "payment", "store", "marketplace"]
+    },
+    {
+      "name": "Mobile",
+      "keywords": ["mobile", "app", "wallet", "phone", "messaging", "consumer app", "mini app"]
+    },
+    {
+      "name": "Health and Wellness",
+      "keywords": ["health", "wellness", "burnout", "mental health", "meditation", "yoga", "retreat", "recovery"]
+    },
+    {
+      "name": "Fitness",
+      "keywords": ["fitness", "run club", "gym", "training", "movement", "sport", "pilates"]
+    },
+    {
+      "name": "Art & Luxury",
+      "keywords": ["art", "luxury", "fashion", "gallery", "design", "jewelry", "culture"]
+    },
+    {
+      "name": "Collectibles",
+      "keywords": ["collectible", "trading card", "membership", "nft", "physical-digital", "fan"]
+    },
+    {
+      "name": "Taxes",
+      "keywords": ["tax", "accounting", "filing", "income", "capital gains", "compliance"]
+    },
+    {
+      "name": "Legal",
+      "keywords": ["legal", "regulation", "policy", "license", "terms", "law", "jurisdiction"]
+    },
+    {
+      "name": "Hackathons",
+      "keywords": ["hackathon", "builder", "demo day", "ship", "grant", "bounty"]
+    },
+    {
+      "name": "Monthly Events",
+      "keywords": ["monthly", "calendar", "this month", "event roundup", "conference", "summit"]
+    }
+  ],
+  "shifts": {
+    "morning_keywords": ["launch", "funding", "partnership", "conference", "hackathon", "product", "news"],
+    "evening_keywords": [
+      "wellness",
+      "retreat",
+      "burnout",
+      "meditation",
+      "yoga",
+      "creator wellness",
+      "community rebuild",
+      "coworking",
+      "residency",
+      "local dao",
+      "run club"
+    ]
+  },
+  "platforms": {
+    "x": {
+      "display_name": "Twitter/X",
+      "hashtags": ["#EverydayWeb3", "#IRLWeb3", "#Web3"]
+    },
+    "linkedin": {
+      "display_name": "LinkedIn",
+      "hashtags": ["#EverydayWeb3", "#Web3", "#FutureOfWork", "#CommunityBuilding"]
+    },
+    "instagram": {
+      "display_name": "Instagram",
+      "hashtags": ["#EverydayWeb3", "#IRLWeb3", "#CreatorWellness", "#Web3Events"]
+    },
+    "pinterest": {
+      "display_name": "Pinterest",
+      "hashtags": ["#EverydayWeb3", "#Web3Events", "#CreatorWellness"]
+    },
+    "telegram": {
+      "display_name": "Telegram",
+      "hashtags": ["#EverydayWeb3", "#LocalAlpha", "#IRLWeb3"]
+    },
+    "discord": {
+      "display_name": "Discord",
+      "hashtags": ["#EverydayWeb3", "#LocalAlpha", "#IRLWeb3"]
+    },
+    "blog": {
+      "display_name": "Blog",
+      "hashtags": ["#EverydayWeb3", "#IRLWeb3", "#Web3Commerce"]
+    }
+  }
+}
