@@ -1,0 +1,54 @@
+{
+  "mcpServers": {
+    "firecrawl-mcp": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "YOUR_FIRECRAWL_API_KEY"
+      }
+    },
+    "exa": {
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "mcp-gsheets": {
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "YOUR_GOOGLE_PROJECT_ID",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+      }
+    },
+    "browserbase": {
+      "command": "npx",
+      "args": ["-y", "@browserbasehq/mcp"],
+      "env": {
+        "BROWSERBASE_API_KEY": "YOUR_BROWSERBASE_API_KEY",
+        "BROWSERBASE_PROJECT_ID": "YOUR_BROWSERBASE_PROJECT_ID"
+      }
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer YOUR_GITHUB_PAT"
+      }
+    },
+    "airtable": {
+      "command": "npx",
+      "args": ["-y", "@node2flow/airtable-mcp"],
+      "env": {
+        "AIRTABLE_PAT": "YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN"
+      }
+    },
+    "discord": {
+      "command": "npx",
+      "args": ["-y", "@quadslab.io/discord-mcp"],
+      "env": {
+        "DISCORD_TOKEN": "YOUR_DISCORD_BOT_TOKEN",
+        "DISCORD_GUILD_ID": "YOUR_DISCORD_SERVER_ID"
+      }
+    }
+  }
+}

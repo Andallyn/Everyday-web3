@@ -1,0 +1,134 @@
+{
+  "mcps": [
+    {
+      "name": "Firecrawl MCP",
+      "key": "firecrawl-mcp",
+      "priority": 1,
+      "status": "recommended_now",
+      "purpose": "Crawl conference pages, event directories, company blogs, changelogs, and press pages.",
+      "best_for": ["Lu.ma", "plan.wtf", "Cryptonomads", "ETHDenver", "EthCC", "Consensus", "company blogs"],
+      "cursor_config": {
+        "command": "npx",
+        "args": ["-y", "firecrawl-mcp"],
+        "env": {
+          "FIRECRAWL_API_KEY": "YOUR_FIRECRAWL_API_KEY"
+        }
+      },
+      "secrets": ["FIRECRAWL_API_KEY"],
+      "source": "https://docs.firecrawl.dev/mcp-server"
+    },
+    {
+      "name": "Exa MCP",
+      "key": "exa",
+      "priority": 2,
+      "status": "recommended_now",
+      "purpose": "Discover new IRL Web3 events, retreats, product launches, city guides, and company announcements.",
+      "best_for": ["semantic web search", "discovery queries", "research outside known source lists"],
+      "cursor_config": {
+        "url": "https://mcp.exa.ai/mcp"
+      },
+      "secrets": [],
+      "source": "https://exa.ai/docs/reference/exa-mcp"
+    },
+    {
+      "name": "Notion MCP",
+      "key": "notion",
+      "priority": 3,
+      "status": "recommended_now",
+      "purpose": "Use Notion as the editorial desk for leads, categories, hooks, statuses, publish dates, and performance notes.",
+      "best_for": ["editorial database", "content calendar", "status tracking", "research notes"],
+      "cursor_config": {
+        "url": "https://mcp.notion.com/mcp"
+      },
+      "secrets": [],
+      "source": "https://developers.notion.com/guides/mcp/get-started-with-mcp"
+    },
+    {
+      "name": "Google Sheets MCP",
+      "key": "mcp-gsheets",
+      "priority": 4,
+      "status": "recommended_now",
+      "purpose": "Use Google Sheets as a lightweight source database that maps cleanly to CSV exports.",
+      "best_for": ["source spreadsheet", "manual source review", "CSV export", "low-friction ops"],
+      "cursor_config": {
+        "command": "npx",
+        "args": ["-y", "mcp-gsheets@latest"],
+        "env": {
+          "GOOGLE_PROJECT_ID": "YOUR_GOOGLE_PROJECT_ID",
+          "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+        }
+      },
+      "secrets": ["GOOGLE_APPLICATION_CREDENTIALS"],
+      "source": "https://github.com/freema/mcp-gsheets"
+    },
+    {
+      "name": "Browserbase MCP",
+      "key": "browserbase",
+      "priority": 5,
+      "status": "recommended_now",
+      "purpose": "Handle dynamic pages, browser automation, screenshots, and pages that simple crawlers cannot read.",
+      "best_for": ["dynamic event pages", "visual checks", "screenshots", "hard-to-crawl sites"],
+      "cursor_config": {
+        "command": "npx",
+        "args": ["-y", "@browserbasehq/mcp"],
+        "env": {
+          "BROWSERBASE_API_KEY": "YOUR_BROWSERBASE_API_KEY",
+          "BROWSERBASE_PROJECT_ID": "YOUR_BROWSERBASE_PROJECT_ID"
+        }
+      },
+      "secrets": ["BROWSERBASE_API_KEY"],
+      "source": "https://github.com/browserbase/mcp-server-browserbase"
+    },
+    {
+      "name": "GitHub MCP",
+      "key": "github",
+      "priority": 6,
+      "status": "use_when_engine_development_grows",
+      "purpose": "Manage issues, PR context, roadmap notes, and development workflows for the engine.",
+      "best_for": ["repo maintenance", "issues", "PR context", "roadmap tracking"],
+      "cursor_config": {
+        "url": "https://api.githubcopilot.com/mcp/",
+        "headers": {
+          "Authorization": "Bearer YOUR_GITHUB_PAT"
+        }
+      },
+      "secrets": ["GITHUB_PAT"],
+      "source": "https://github.com/github/github-mcp-server"
+    },
+    {
+      "name": "Airtable MCP",
+      "key": "airtable",
+      "priority": 7,
+      "status": "use_if_notion_is_not_structured_enough",
+      "purpose": "Use Airtable as a structured database for source registry, company watchlist, calendar, and performance metrics.",
+      "best_for": ["structured editorial database", "company watchlist", "performance metrics"],
+      "cursor_config": {
+        "command": "npx",
+        "args": ["-y", "@node2flow/airtable-mcp"],
+        "env": {
+          "AIRTABLE_PAT": "YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN"
+        }
+      },
+      "secrets": ["AIRTABLE_PAT"],
+      "source": "https://registry.npmjs.org/%40node2flow%2Fairtable-mcp"
+    },
+    {
+      "name": "Discord MCP",
+      "key": "discord",
+      "priority": 8,
+      "status": "use_when_community_submissions_start",
+      "purpose": "Collect community-submitted links, monitor event suggestions, and push research briefs to private channels.",
+      "best_for": ["community submissions", "Discord announcements", "private editorial channel"],
+      "cursor_config": {
+        "command": "npx",
+        "args": ["-y", "@quadslab.io/discord-mcp"],
+        "env": {
+          "DISCORD_TOKEN": "YOUR_DISCORD_BOT_TOKEN",
+          "DISCORD_GUILD_ID": "YOUR_DISCORD_SERVER_ID"
+        }
+      },
+      "secrets": ["DISCORD_TOKEN"],
+      "source": "https://www.npmjs.com/package/@quadslab.io/discord-mcp"
+    }
+  ]
+}
