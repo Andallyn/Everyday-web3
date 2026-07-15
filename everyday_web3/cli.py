@@ -8,9 +8,22 @@ from datetime import date
 from pathlib import Path
 
 from . import __version__
-from .engine import EverydayWeb3Engine, load_config, load_sources, write_generation_outputs
+from .engine import (
+    EverydayWeb3Engine,
+    load_config,
+    load_sources,
+    write_generation_outputs,
+)
 from .mcps import build_cursor_mcp_config, load_mcp_registry, render_mcp_markdown
 from .models import GenerationContext
+from .ops import (
+    build_editorial_dashboard,
+    build_scheduler_csv,
+    dedupe_sources,
+    lint_ideas,
+    render_lint_report,
+    write_text,
+)
 from .plugins import recommended_plugins
 from .research import (
     ResearchEngine,
@@ -18,7 +31,6 @@ from .research import (
     load_source_registry,
     write_research_outputs,
 )
-
 
 DEFAULT_CONFIG = Path("config/everyday_web3.json")
 DEFAULT_INPUT = Path("data/sources.sample.csv")
@@ -29,7 +41,9 @@ DEFAULT_MCP_REGISTRY = Path("config/mcp_registry.json")
 
 
 def parse_platforms(value: str) -> list[str]:
-    platforms = [platform.strip().lower() for platform in value.split(",") if platform.strip()]
+    platforms = [
+        platform.strip().lower() for platform in value.split(",") if platform.strip()
+    ]
     if not platforms:
         raise argparse.ArgumentTypeError("at least one platform is required")
     return platforms
@@ -46,27 +60,87 @@ def build_parser() -> argparse.ArgumentParser:
         prog="everyday-web3",
         description="Generate Everyday Web3 content from curated sources.",
     )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    generate = subparsers.add_parser("generate", help="Generate drafts and a content calendar.")
-    generate.add_argument("--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config.")
-    generate.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input.")
-    generate.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory.")
+    generate = subparsers.add_parser(
+        "generate", help="Generate drafts and a content calendar."
+    )
+    generate.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config."
+    )
+    generate.add_argument(
+        "--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input."
+    )
+    generate.add_argument(
+        "--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory."
+    )
     generate.add_argument(
         "--platforms",
         type=parse_platforms,
         default=parse_platforms("x,linkedin,pinterest,telegram,blog"),
         help="Comma-separated platform keys, e.g. x,linkedin,pinterest,telegram,blog.",
     )
-    generate.add_argument("--date", dest="run_date", help="Run date in YYYY-MM-DD format.")
-    generate.add_argument("--limit", type=int, default=8, help="Maximum source items to convert.")
-    generate.add_argument("--no-weekly", action="store_true", help="Skip weekly roundup output.")
+    generate.add_argument(
+        "--date", dest="run_date", help="Run date in YYYY-MM-DD format."
+    )
+    generate.add_argument(
+        "--limit", type=int, default=8, help="Maximum source items to convert."
+    )
+    generate.add_argument(
+        "--no-weekly", action="store_true", help="Skip weekly roundup output."
+    )
 
-    research = subparsers.add_parser("research", help="Generate a media/research desk brief.")
-    research.add_argument("--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config.")
-    research.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input.")
+    daily = subparsers.add_parser(
+        "daily",
+        help="Run research, generation, dashboard, linting, and scheduler export.",
+    )
+    daily.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config."
+    )
+    daily.add_argument(
+        "--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input."
+    )
+    daily.add_argument(
+        "--registry", type=Path, default=DEFAULT_REGISTRY, help="JSON source registry."
+    )
+    daily.add_argument(
+        "--watchlist",
+        type=Path,
+        default=DEFAULT_WATCHLIST,
+        help="CSV or JSON company watchlist.",
+    )
+    daily.add_argument(
+        "--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory."
+    )
+    daily.add_argument(
+        "--platforms",
+        type=parse_platforms,
+        default=parse_platforms("x,linkedin,pinterest,instagram,telegram,discord,blog"),
+        help="Comma-separated platform keys.",
+    )
+    daily.add_argument("--date", dest="run_date", help="Run date in YYYY-MM-DD format.")
+    daily.add_argument(
+        "--limit", type=int, default=8, help="Maximum deduped source items to convert."
+    )
+    daily.add_argument(
+        "--scheduler",
+        default="generic",
+        help="Scheduler label for scheduler_export.csv.",
+    )
+
+    research = subparsers.add_parser(
+        "research", help="Generate a media/research desk brief."
+    )
+    research.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config."
+    )
+    research.add_argument(
+        "--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input."
+    )
     research.add_argument(
         "--registry",
         type=Path,
@@ -79,14 +153,73 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_WATCHLIST,
         help="CSV or JSON company watchlist.",
     )
-    research.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory.")
-    research.add_argument("--date", dest="run_date", help="Run date in YYYY-MM-DD format.")
-    research.add_argument("--limit", type=int, default=20, help="Maximum scored leads to include.")
+    research.add_argument(
+        "--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory."
+    )
+    research.add_argument(
+        "--date", dest="run_date", help="Run date in YYYY-MM-DD format."
+    )
+    research.add_argument(
+        "--limit", type=int, default=20, help="Maximum scored leads to include."
+    )
 
-    subparsers.add_parser("plugins", help="Show useful source, workflow, and publishing plugins.")
+    subparsers.add_parser(
+        "plugins", help="Show useful source, workflow, and publishing plugins."
+    )
 
-    mcps = subparsers.add_parser("mcps", help="Show recommended MCP servers for the research engine.")
-    mcps.add_argument("--registry", type=Path, default=DEFAULT_MCP_REGISTRY, help="Path to MCP registry JSON.")
+    mcps = subparsers.add_parser(
+        "mcps", help="Show recommended MCP servers for the research engine."
+    )
+    mcps.add_argument(
+        "--registry",
+        type=Path,
+        default=DEFAULT_MCP_REGISTRY,
+        help="Path to MCP registry JSON.",
+    )
+    scheduler = subparsers.add_parser(
+        "export-scheduler", help="Generate scheduler CSV from current sources."
+    )
+    scheduler.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config."
+    )
+    scheduler.add_argument(
+        "--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input."
+    )
+    scheduler.add_argument(
+        "--output", type=Path, default=DEFAULT_OUTPUT, help="Output directory."
+    )
+    scheduler.add_argument(
+        "--platforms",
+        type=parse_platforms,
+        default=parse_platforms("x,linkedin,pinterest,instagram,telegram,discord,blog"),
+        help="Comma-separated platform keys.",
+    )
+    scheduler.add_argument(
+        "--date", dest="run_date", help="Run date in YYYY-MM-DD format."
+    )
+    scheduler.add_argument(
+        "--scheduler",
+        default="generic",
+        help="Scheduler name such as buffer, typefully, publer, or metricool.",
+    )
+
+    lint = subparsers.add_parser(
+        "lint-drafts", help="Generate drafts and report production-readiness issues."
+    )
+    lint.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Path to JSON config."
+    )
+    lint.add_argument(
+        "--input", type=Path, default=DEFAULT_INPUT, help="CSV or JSON source input."
+    )
+    lint.add_argument(
+        "--platforms",
+        type=parse_platforms,
+        default=parse_platforms("x,linkedin,pinterest,instagram,telegram,discord,blog"),
+        help="Comma-separated platform keys.",
+    )
+    lint.add_argument("--date", dest="run_date", help="Run date in YYYY-MM-DD format.")
+
     mcps.add_argument(
         "--format",
         choices=["markdown", "json", "cursor-config"],
@@ -97,18 +230,115 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _build_context(
+    config: dict, run_date: date, platforms: list[str]
+) -> GenerationContext:
+    brand = config.get("brand", {})
+    return GenerationContext(
+        run_date=run_date,
+        brand_name=brand.get("name", "Everyday Web3"),
+        voice=brand.get("voice", "clear, practical, curious, and useful"),
+        platforms=platforms,
+    )
+
+
+def handle_daily(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    sources = dedupe_sources(load_sources(args.input))
+    registry = load_source_registry(args.registry)
+    companies = load_company_watchlist(args.watchlist)
+    run_date = parse_date(args.run_date)
+    content_engine = EverydayWeb3Engine(config)
+    research_engine = ResearchEngine(content_engine)
+    context = _build_context(config, run_date, args.platforms)
+    selected_sources = sources[: max(1, args.limit)]
+    leads = research_engine.score_leads(
+        sources, limit=max(1, args.limit * 3), run_date=run_date
+    )
+    ideas = content_engine.generate(
+        selected_sources, context=context, limit=max(1, args.limit)
+    )
+
+    written = []
+    written.extend(
+        write_research_outputs(
+            research_engine,
+            sources,
+            registry,
+            companies,
+            args.output,
+            run_date,
+            limit=max(1, args.limit * 3),
+        )
+    )
+    written.extend(
+        write_generation_outputs(
+            content_engine, selected_sources, ideas, args.output, run_date
+        )
+    )
+    issues = lint_ideas(ideas)
+    run_dir = args.output / run_date.isoformat()
+    written.append(
+        write_text(
+            run_dir / "editorial_dashboard.md",
+            build_editorial_dashboard(run_date, leads, ideas, issues),
+        )
+    )
+    written.append(
+        write_text(run_dir / "draft_quality_report.md", render_lint_report(issues))
+    )
+    written.append(
+        write_text(
+            run_dir / "scheduler_export.csv",
+            build_scheduler_csv(ideas, run_date, args.scheduler),
+        )
+    )
+
+    print(
+        f"Generated daily operating desk from {len(sources)} deduped sources and {len(ideas)} drafts."
+    )
+    for path in written:
+        print(f"- {path}")
+    return 0
+
+
+def handle_export_scheduler(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    sources = dedupe_sources(load_sources(args.input))
+    run_date = parse_date(args.run_date)
+    engine = EverydayWeb3Engine(config)
+    ideas = engine.generate(
+        sources,
+        context=_build_context(config, run_date, args.platforms),
+        limit=len(sources) or 1,
+    )
+    path = args.output / run_date.isoformat() / "scheduler_export.csv"
+    write_text(path, build_scheduler_csv(ideas, run_date, args.scheduler))
+    print(f"- {path}")
+    return 0
+
+
+def handle_lint_drafts(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    sources = dedupe_sources(load_sources(args.input))
+    run_date = parse_date(args.run_date)
+    engine = EverydayWeb3Engine(config)
+    ideas = engine.generate(
+        sources,
+        context=_build_context(config, run_date, args.platforms),
+        limit=len(sources) or 1,
+    )
+    report = render_lint_report(lint_ideas(ideas))
+    print(report)
+    return 0
+
+
 def handle_generate(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     sources = load_sources(args.input)
     engine = EverydayWeb3Engine(config)
     run_date = parse_date(args.run_date)
-    brand = config.get("brand", {})
-    context = GenerationContext(
-        run_date=run_date,
-        brand_name=brand.get("name", "Everyday Web3"),
-        voice=brand.get("voice", "clear, practical, curious, and useful"),
-        platforms=args.platforms,
-    )
+    context = _build_context(config, run_date, args.platforms)
 
     ideas = engine.generate(sources=sources, context=context, limit=max(1, args.limit))
     written = write_generation_outputs(
@@ -158,7 +388,9 @@ def handle_research(args: argparse.Namespace) -> int:
         limit=max(1, args.limit),
     )
 
-    print(f"Generated research brief from {len(sources)} leads, {len(registry)} sources, and {len(companies)} companies.")
+    print(
+        f"Generated research brief from {len(sources)} leads, {len(registry)} sources, and {len(companies)} companies."
+    )
     for path in written:
         print(f"- {path}")
     return 0
@@ -185,6 +417,12 @@ def main() -> int:
         return handle_generate(args)
     if args.command == "research":
         return handle_research(args)
+    if args.command == "daily":
+        return handle_daily(args)
+    if args.command == "export-scheduler":
+        return handle_export_scheduler(args)
+    if args.command == "lint-drafts":
+        return handle_lint_drafts(args)
     if args.command == "plugins":
         return handle_plugins()
     if args.command == "mcps":
