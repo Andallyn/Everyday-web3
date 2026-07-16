@@ -57,6 +57,7 @@ Build a repeatable daily desk for the commerce, community, lifestyle, wellness, 
 3. Add Firecrawl/Exa only after the dashboard shows what information is repeatedly missing.
 4. Add scheduler exports when the daily publishing cadence is stable.
 5. Review performance every Friday and mark winners with `repurpose=yes`.
+codex/review-everyday-web3-for-improvements-ljlkif
 
 ## Web application roadmap
 
@@ -96,3 +97,5 @@ The deployed product now starts as a **local-first personal desk**, not a brochu
 - Keep human approval between generated copy and publishing.
 - Record original URLs and collection times for fact-checking and corrections.
 - Provide complete data export and account deletion before introducing hosted accounts.
+=======
+main

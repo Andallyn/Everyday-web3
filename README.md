@@ -224,7 +224,10 @@ If `https://everyday-web3.vercel.app/` shows 404, the most likely causes are:
 3. A deployment has not been triggered yet.
 4. The domain is attached to a different Vercel project.
 
+codex/review-everyday-web3-for-improvements-ljlkif
 Merge the feature branch into the branch Vercel tracks, then trigger a redeploy if automatic Git deployments are disabled.
+Merge this branch or configure Vercel to deploy `cursor/everyday-web3-content-engine-4d63`, then trigger a redeploy.
+main
 ## One-command daily desk
 
 Run the full operator workflow when you want research, draft generation, quality checks, a dashboard, and a scheduler export in one pass:
