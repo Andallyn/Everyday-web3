@@ -190,12 +190,30 @@ To activate them locally, copy `.cursor/mcp.example.json` to `.cursor/mcp.json`,
 python3 -m unittest discover
 ```
 
-## Deploy on Vercel
+## Use the web application
 
-The project can be deployed as a static site because it includes:
+The Vercel deployment is now a functional, local-first personal editorial desk rather than a static marketing page. It supports:
+
+- adding and removing research sources;
+- automatic lead scoring and missing-detail warnings;
+- a ranked daily priority queue;
+- browser persistence between visits;
+- CSV source imports and scheduler CSV exports; and
+- one-click sample data for testing the workflow.
+
+No account is required in this first usable release. Data is stored in the current browser's `localStorage`, so use CSV export for portable backups and do not expect data to sync across browsers or devices yet. The hosted-account and database path is documented in `plan.md`.
+
+Run it locally with:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000`. The deployable web files are:
 
 - `index.html`
 - `styles.css`
+- `app-core.js`
 - `script.js`
 - `vercel.json`
 
@@ -206,7 +224,10 @@ If `https://everyday-web3.vercel.app/` shows 404, the most likely causes are:
 3. A deployment has not been triggered yet.
 4. The domain is attached to a different Vercel project.
 
+codex/review-everyday-web3-for-improvements-ljlkif
+Merge the feature branch into the branch Vercel tracks, then trigger a redeploy if automatic Git deployments are disabled.
 Merge this branch or configure Vercel to deploy `cursor/everyday-web3-content-engine-4d63`, then trigger a redeploy.
+main
 ## One-command daily desk
 
 Run the full operator workflow when you want research, draft generation, quality checks, a dashboard, and a scheduler export in one pass:
