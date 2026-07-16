@@ -3,202 +3,93 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Everyday Web3 is a media and research engine for tracking IRL crypto products, events, commerce, wellness, and community."
-    />
-    <title>Everyday Web3 Research Engine</title>
+    <meta name="description" content="Everyday Web3 is a local-first editorial desk for turning Web3 sources into a daily publishing queue." />
+    <title>Everyday Web3 · Editorial Desk</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="Primary navigation">
-        <a class="brand" href="/">
-          <span class="brand-mark">E3</span>
-          <span>Everyday Web3</span>
-        </a>
-        <div class="nav-links">
-          <a href="#engine">Engine</a>
-          <a href="#sources">Sources</a>
-          <a href="#workflow">Workflow</a>
-          <a href="#mcps">MCPs</a>
-          <a href="#plugins">Plugins</a>
-        </div>
+    <header class="app-header">
+      <a class="brand" href="#dashboard"><span class="brand-mark">E3</span><span>Everyday Web3</span></a>
+      <nav class="app-nav" aria-label="Workspace">
+        <a href="#dashboard">Desk</a><a href="#sources">Sources</a><a href="#roadmap">Roadmap</a>
       </nav>
+      <span class="save-state" id="save-state">Saved locally</span>
     </header>
 
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">IRL crypto intelligence</p>
-          <h1>The media and research engine for Everyday Web3.</h1>
-          <p class="hero-text">
-            Track the companies, events, products, retreats, meetups, and communities turning Web3 into
-            real-life behavior across commerce, lifestyle, wellness, travel, mobile, art, and culture.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#workflow">See the workflow</a>
-            <a class="button secondary" href="#plugins">Recommended plugins</a>
+    <main class="app-shell">
+      <section id="dashboard" class="workspace-head">
+        <div>
+          <p class="eyebrow">Your private editorial workspace</p>
+          <h1>Good morning. What is worth publishing?</h1>
+          <p class="lede">Collect leads, score the strongest stories, and build today's queue. Your work stays in this browser.</p>
+        </div>
+        <div class="head-actions">
+          <button class="button secondary" id="load-sample" type="button">Load sample data</button>
+          <button class="button primary" id="generate-desk" type="button">Generate daily desk</button>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Workspace summary">
+        <article><span>Sources</span><strong id="metric-sources">0</strong><small>in your workspace</small></article>
+        <article><span>Ready to review</span><strong id="metric-ready">0</strong><small>scored 60 or higher</small></article>
+        <article><span>Scheduled</span><strong id="metric-scheduled">0</strong><small>with publish dates</small></article>
+        <article><span>Needs details</span><strong id="metric-needs">0</strong><small>missing link, date, or place</small></article>
+      </section>
+
+      <div class="desk-grid">
+        <section class="panel queue-panel" aria-labelledby="queue-title">
+          <div class="panel-head">
+            <div><p class="eyebrow">Priority queue</p><h2 id="queue-title">Today's strongest leads</h2></div>
+            <button class="text-button" id="export-csv" type="button">Export scheduler CSV</button>
+          </div>
+          <div id="queue" class="queue empty-state">
+            <p>Add a source or load the sample data to build your desk.</p>
+          </div>
+        </section>
+
+        <aside class="panel quick-add" aria-labelledby="add-title">
+          <p class="eyebrow">Capture a signal</p><h2 id="add-title">Add a source</h2>
+          <form id="source-form">
+            <label>Title<input name="title" required placeholder="What happened?" /></label>
+            <label>Source URL<input name="url" type="url" placeholder="https://…" /></label>
+            <div class="form-row">
+              <label>Category<select name="category"><option>commerce</option><option>community</option><option>events</option><option>lifestyle</option><option>wellness</option><option>travel</option><option>art</option><option>legal</option></select></label>
+              <label>Priority<select name="priority"><option value="3">Normal</option><option value="5">High</option><option value="1">Low</option></select></label>
+            </div>
+            <div class="form-row">
+              <label>Event date<input name="event_date" type="date" /></label>
+              <label>Location<input name="location" placeholder="City or online" /></label>
+            </div>
+            <label>Summary<textarea name="summary" rows="4" placeholder="Why does this matter to everyday users?"></textarea></label>
+            <button class="button primary full" type="submit">Add to workspace</button>
+          </form>
+        </aside>
+      </div>
+
+      <section id="sources" class="panel source-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Source library</p><h2>Everything you are tracking</h2></div>
+          <div class="source-actions">
+            <label class="button secondary file-button">Import CSV<input id="csv-import" type="file" accept=".csv,text/csv" /></label>
+            <button class="text-button danger" id="clear-data" type="button">Clear workspace</button>
           </div>
         </div>
-        <aside class="brief-card" aria-label="Daily research brief preview">
-          <p class="card-label">Daily desk</p>
-          <h2>This Week in IRL Web3</h2>
-          <ul>
-            <li>Morning: company news, launches, partnerships, conference events.</li>
-            <li>Evening: wellness retreats, local DAO meetups, co-working residencies.</li>
-            <li>Weekly: a combined roundup for X, LinkedIn, Pinterest, Telegram, and blog.</li>
-          </ul>
-        </aside>
+        <div class="table-wrap"><table><thead><tr><th>Story</th><th>Category</th><th>Status</th><th>Score</th><th>Publish</th><th></th></tr></thead><tbody id="source-table"></tbody></table></div>
       </section>
 
-      <section id="engine" class="section">
-        <div class="section-heading">
-          <p class="eyebrow">What it does</p>
-          <h2>From raw links to publishable media.</h2>
-        </div>
-        <div class="feature-grid">
-          <article class="feature-card">
-            <h3>Research briefs</h3>
-            <p>Score and rank leads by category fit, event signals, source quality, location, and format potential.</p>
-          </article>
-          <article class="feature-card">
-            <h3>Content generation</h3>
-            <p>Create platform-specific drafts for X, LinkedIn, Pinterest, Instagram, Telegram, Discord, and blog.</p>
-          </article>
-          <article class="feature-card">
-            <h3>Source mapping</h3>
-            <p>Maintain a live registry of X lists, company blogs, conference pages, event directories, and search layers.</p>
-          </article>
-          <article class="feature-card">
-            <h3>Editorial watchlists</h3>
-            <p>Track companies building IRL Web3 products across health, lifestyle, mobile, payments, culture, and events.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="sources" class="section split">
-        <div>
-          <p class="eyebrow">Source graph</p>
-          <h2>Your X list becomes the core signal layer.</h2>
-          <p>
-            The engine is designed around your list of 200+ companies focused on IRL, health, lifestyle,
-            commerce, and consumer Web3, then expands coverage through event directories and company-owned channels.
-          </p>
-          <a class="text-link" href="https://x.com/i/lists/1970082106794442856">Open the Everyday Web3 X list</a>
-        </div>
-        <div class="source-list">
-          <span>X list and bookmarks</span>
-          <span>Lu.ma, plan.wtf, Cryptonomads</span>
-          <span>ETHGlobal, EthCC, ETHDenver, Consensus</span>
-          <span>Company blogs, changelogs, newsletters</span>
-          <span>Search discovery for retreats and local alpha</span>
-        </div>
-      </section>
-
-      <section id="workflow" class="section">
-        <div class="section-heading">
-          <p class="eyebrow">Daily operating system</p>
-          <h2>A repeatable workflow for morning and evening shifts.</h2>
-        </div>
-        <ol class="workflow">
-          <li>
-            <strong>Collect</strong>
-            <span>Save links from X, event sites, newsletters, blogs, and community channels.</span>
-          </li>
-          <li>
-            <strong>Research</strong>
-            <span>Generate a scored research brief and choose the strongest daily leads.</span>
-          </li>
-          <li>
-            <strong>Create</strong>
-            <span>Turn selected leads into platform drafts and weekly roundups.</span>
-          </li>
-          <li>
-            <strong>Publish</strong>
-            <span>Schedule posts, collect performance notes, and improve the watchlist.</span>
-          </li>
+      <section id="roadmap" class="roadmap">
+        <div><p class="eyebrow">Path to a full product</p><h2>This is the usable local-first foundation.</h2><p>The next releases add accounts, a shared database, automated collection, approvals, and direct publishing without throwing away this workflow.</p></div>
+        <ol>
+          <li class="done"><strong>Now · Personal desk</strong><span>Browser storage, source capture, scoring, daily queue, CSV import/export.</span></li>
+          <li><strong>Next · Cloud workspace</strong><span>Authentication, Postgres, synced devices, saved drafts, backups.</span></li>
+          <li><strong>Then · Research automation</strong><span>RSS, Firecrawl and Exa collectors, source verification, scheduled jobs.</span></li>
+          <li><strong>Later · Publishing OS</strong><span>Team approvals, media library, direct channel publishing, analytics loop.</span></li>
         </ol>
-      </section>
-
-      <section id="mcps" class="section">
-        <div class="section-heading">
-          <p class="eyebrow">MCP-powered research</p>
-          <h2>Connect the engine to live research tools.</h2>
-          <p>
-            Add MCPs when you are ready to authenticate sources and automate more of the research desk.
-            Start with crawling, discovery, and an editorial database before adding community or development tools.
-          </p>
-        </div>
-        <div class="mcp-grid">
-          <article class="mcp-card">
-            <span>01</span>
-            <h3>Firecrawl</h3>
-            <p>Conference pages, company blogs, changelogs, event directories, and press pages.</p>
-          </article>
-          <article class="mcp-card">
-            <span>02</span>
-            <h3>Exa</h3>
-            <p>Discovery searches for IRL product launches, wellness retreats, city guides, and local alpha.</p>
-          </article>
-          <article class="mcp-card">
-            <span>03</span>
-            <h3>Notion</h3>
-            <p>Editorial database for leads, hooks, statuses, publish dates, and performance notes.</p>
-          </article>
-          <article class="mcp-card">
-            <span>04</span>
-            <h3>Google Sheets</h3>
-            <p>Lightweight source database with clean CSV export into the content generator.</p>
-          </article>
-          <article class="mcp-card">
-            <span>05</span>
-            <h3>Browserbase</h3>
-            <p>Dynamic pages, screenshots, visual checks, and conference schedules that need a browser.</p>
-          </article>
-          <article class="mcp-card">
-            <span>06+</span>
-            <h3>GitHub, Airtable, Discord</h3>
-            <p>Engine development, structured media operations, and community-submitted research leads.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="plugins" class="section split dark-panel">
-        <div>
-          <p class="eyebrow">Recommended marketplace stack</p>
-          <h2>Start lean, then automate what repeats.</h2>
-          <p>
-            The repo works without paid APIs. Add tools gradually as the media desk becomes more repeatable.
-          </p>
-        </div>
-        <div class="plugin-stack">
-          <button class="plugin-pill is-active" data-detail="Core feed for your company universe. Use X API, export tools, Readwise, or Apify depending on access.">
-            X list collector
-          </button>
-          <button class="plugin-pill" data-detail="Use Firecrawl or official feeds to track event pages, company blogs, changelogs, and conference sites.">
-            Firecrawl
-          </button>
-          <button class="plugin-pill" data-detail="Use Exa or Tavily to discover new retreats, local DAO meetups, product launches, and IRL Web3 announcements.">
-            Exa / Tavily
-          </button>
-          <button class="plugin-pill" data-detail="Use Notion or Airtable as the editorial command center for source status, hooks, publish dates, and performance.">
-            Notion / Airtable
-          </button>
-          <button class="plugin-pill" data-detail="Use Typefully, Buffer, Publer, Hypefury, Canva, or Figma for scheduling and visual production.">
-            Publishing stack
-          </button>
-          <p id="plugin-detail" class="plugin-detail">
-            Core feed for your company universe. Use X API, export tools, Readwise, or Apify depending on access.
-          </p>
-        </div>
       </section>
     </main>
 
-    <footer class="footer">
-      <p>Everyday Web3: useful crypto products, places, and communities people can use in real life.</p>
-    </footer>
-
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app-core.js"></script>
     <script src="/script.js"></script>
   </body>
 </html>

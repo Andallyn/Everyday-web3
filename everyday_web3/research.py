@@ -12,11 +12,11 @@ import json
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any
 
 from .engine import EVENING_SHIFT, MORNING_SHIFT, EverydayWeb3Engine, slugify
 from .models import SourceItem, split_list
-
 
 HIGH_SIGNAL_TERMS = [
     "launch",
@@ -61,7 +61,9 @@ class MonitoredSource:
         return cls(
             name=str(row.get("name") or "").strip(),
             url=str(row.get("url") or "").strip(),
-            source_type=str(row.get("source_type") or row.get("type") or "website").strip(),
+            source_type=str(
+                row.get("source_type") or row.get("type") or "website"
+            ).strip(),
             track=str(row.get("track") or "both").strip(),
             cadence=str(row.get("cadence") or "daily").strip(),
             plugin=str(row.get("plugin") or "manual_review").strip(),
@@ -110,6 +112,8 @@ class ScoredLead:
     shift: str
     format_name: str
     reasons: list[str]
+    freshness: str = "evergreen"
+    source_quality: str = "standard"
 
 
 def load_source_registry(path: Path) -> list[MonitoredSource]:
@@ -118,7 +122,9 @@ def load_source_registry(path: Path) -> list[MonitoredSource]:
 
     raw_sources = payload.get("sources", payload if isinstance(payload, list) else [])
     if not isinstance(raw_sources, list):
-        raise ValueError("source registry must be a list or an object with a sources list")
+        raise ValueError(
+            "source registry must be a list or an object with a sources list"
+        )
 
     return [MonitoredSource.from_mapping(row) for row in raw_sources]
 
@@ -143,16 +149,22 @@ class ResearchEngine:
     def __init__(self, content_engine: EverydayWeb3Engine) -> None:
         self.content_engine = content_engine
 
-    def score_leads(self, sources: list[SourceItem], limit: int = 20) -> list[ScoredLead]:
-        scored = [self.score_source(source) for source in sources]
+    def score_leads(
+        self, sources: list[SourceItem], limit: int = 20, run_date: date | None = None
+    ) -> list[ScoredLead]:
+        scored = [self.score_source(source, run_date=run_date) for source in sources]
         return sorted(scored, key=lambda lead: lead.score, reverse=True)[:limit]
 
-    def score_source(self, source: SourceItem) -> ScoredLead:
+    def score_source(
+        self, source: SourceItem, run_date: date | None = None
+    ) -> ScoredLead:
         category = self.content_engine.classify_category(source)
         shift = self.content_engine.detect_shift(source)
         format_name = self.content_engine.pick_format(source, category, shift)
         reasons: list[str] = []
         score = source.priority * 10
+        freshness = self.freshness_label(source, run_date=run_date)
+        source_quality = self.source_quality_label(source)
 
         text = source.searchable_text
         matched_terms = [term for term in HIGH_SIGNAL_TERMS if term in text]
@@ -164,6 +176,13 @@ class ResearchEngine:
             score += 3
             reasons.append("has source link")
 
+        if source_quality == "official_or_owned":
+            score += 4
+            reasons.append("official/owned source quality")
+        elif source_quality == "social_signal":
+            score += 2
+            reasons.append("social signal source")
+
         if source.location:
             score += 4
             reasons.append("has IRL location")
@@ -171,6 +190,13 @@ class ResearchEngine:
         if source.event_date:
             score += 4
             reasons.append("has event date")
+
+        if freshness in {"today", "this_week", "upcoming_event"}:
+            score += 5 if freshness == "today" else 3
+            reasons.append(f"freshness: {freshness}")
+        elif freshness == "stale":
+            score -= 8
+            reasons.append("freshness: stale")
 
         if source.people:
             score += 3
@@ -180,9 +206,25 @@ class ResearchEngine:
             score += 4
             reasons.append("fits new community/wellness track")
 
-        if category in {"Shopping", "Mobile", "Food & Drinks", "Travel", "Health and Wellness"}:
+        if category in {
+            "Shopping",
+            "Mobile",
+            "Food & Drinks",
+            "Travel",
+            "Health and Wellness",
+        }:
             score += 3
             reasons.append("strong everyday adoption category")
+
+        performance_score = (
+            source.engagements + source.clicks + source.saves + source.comments
+        )
+        if performance_score > 0:
+            score += min(performance_score // 10, 10)
+            reasons.append("has prior performance feedback")
+        if source.repurpose.lower() in {"yes", "true", "1", "repurpose"}:
+            score += 4
+            reasons.append("marked for repurposing")
 
         if not reasons:
             reasons.append("baseline editorial fit")
@@ -194,7 +236,54 @@ class ResearchEngine:
             shift=shift,
             format_name=format_name,
             reasons=reasons,
+            freshness=freshness,
+            source_quality=source_quality,
         )
+
+    def freshness_label(self, source: SourceItem, run_date: date | None = None) -> str:
+        """Classify source timeliness for scoring and dashboards."""
+
+        run_date = run_date or date.today()
+        if not source.event_date:
+            return "evergreen"
+        try:
+            event_date = date.fromisoformat(source.event_date[:10])
+        except ValueError:
+            return "needs_date_review"
+        delta = (event_date - run_date).days
+        if delta < -14:
+            return "stale"
+        if delta < 0:
+            return "recent"
+        if delta == 0:
+            return "today"
+        if delta <= 7:
+            return "this_week"
+        return "upcoming_event"
+
+    def source_quality_label(self, source: SourceItem) -> str:
+        """Estimate source quality from URL shape and source type."""
+
+        source_type = source.source_type.lower()
+        host = urlparse(source.url).netloc.lower() if source.url else ""
+        if source_type in {
+            "blog",
+            "press",
+            "changelog",
+            "official",
+            "conference",
+            "event",
+        }:
+            return "official_or_owned"
+        if any(
+            domain in host for domain in ["luma", "plan.", "ethglobal", "ethereum.org"]
+        ):
+            return "official_or_owned"
+        if any(domain in host for domain in ["x.com", "twitter.com", "warpcast"]):
+            return "social_signal"
+        if source.url:
+            return "linked"
+        return "needs_source"
 
     def build_daily_brief(
         self,
@@ -222,6 +311,8 @@ class ResearchEngine:
                     f"- Category: {lead.category}",
                     f"- Shift: {lead.shift}",
                     f"- Suggested format: {lead.format_name}",
+                    f"- Freshness: {lead.freshness}",
+                    f"- Source quality: {lead.source_quality}",
                     f"- Why it ranks: {'; '.join(lead.reasons)}",
                     f"- Summary: {source.summary or 'Add summary after review.'}{url}",
                     "",
@@ -243,13 +334,17 @@ class ResearchEngine:
             ]
         )
 
-        for source in sorted(registry, key=lambda item: item.priority, reverse=True)[:12]:
+        for source in sorted(registry, key=lambda item: item.priority, reverse=True)[
+            :12
+        ]:
             lines.append(
                 f"- **{source.name}** [{source.source_type}] - {source.cadence}; plugin: {source.plugin}; {source.url}"
             )
 
         lines.extend(["", "## Company watchlist focus", ""])
-        for company in sorted(companies, key=lambda item: item.priority, reverse=True)[:12]:
+        for company in sorted(companies, key=lambda item: item.priority, reverse=True)[
+            :12
+        ]:
             handle = f" / {company.x_handle}" if company.x_handle else ""
             lines.append(
                 f"- **{company.name}**{handle} - {company.category}; tags: {', '.join(company.tags) or 'add tags'}"
@@ -276,7 +371,9 @@ class ResearchEngine:
             "| Source | Type | Track | Cadence | Plugin | Priority |",
             "| --- | --- | --- | --- | --- | --- |",
         ]
-        for source in sorted(registry, key=lambda item: (item.track, -item.priority, item.name.lower())):
+        for source in sorted(
+            registry, key=lambda item: (item.track, -item.priority, item.name.lower())
+        ):
             lines.append(
                 f"| [{source.name}]({source.url}) | {source.source_type} | {source.track} | {source.cadence} | {source.plugin} | {source.priority} |"
             )
@@ -290,7 +387,10 @@ class ResearchEngine:
             "| Company | Category | Region | X | Website/Source | Priority | Tags |",
             "| --- | --- | --- | --- | --- | --- | --- |",
         ]
-        for company in sorted(companies, key=lambda item: (-item.priority, item.category, item.name.lower())):
+        for company in sorted(
+            companies,
+            key=lambda item: (-item.priority, item.category, item.name.lower()),
+        ):
             link = company.website or company.source_url
             lines.append(
                 f"| {company.name} | {company.category} | {company.region} | {company.x_handle} | {link} | {company.priority} | {', '.join(company.tags)} |"
@@ -309,6 +409,11 @@ class ResearchEngine:
                 "location",
                 "event_date",
                 "url",
+                "freshness",
+                "source_quality",
+                "status",
+                "publish_date",
+                "performance_notes",
                 "reasons",
             ]
         ]
@@ -324,18 +429,29 @@ class ResearchEngine:
                     source.location,
                     source.event_date,
                     source.url,
+                    lead.freshness,
+                    lead.source_quality,
+                    source.status,
+                    source.publish_date,
+                    source.performance_notes,
                     "; ".join(lead.reasons),
                 ]
             )
 
-        return "\n".join(",".join(_csv_escape(cell) for cell in row) for row in rows) + "\n"
+        return (
+            "\n".join(",".join(_csv_escape(cell) for cell in row) for row in rows)
+            + "\n"
+        )
 
     def _shift_queue(self, leads: list[ScoredLead], shift: str) -> str:
         matching = [lead for lead in leads if lead.shift == shift][:5]
         if not matching:
-            return "- No leads yet. Check the source map and add items to the source CSV."
+            return (
+                "- No leads yet. Check the source map and add items to the source CSV."
+            )
         return "\n".join(
-            f"- {lead.source.title} ({lead.category}, score {lead.score})" for lead in matching
+            f"- {lead.source.title} ({lead.category}, score {lead.score})"
+            for lead in matching
         )
 
 
@@ -357,9 +473,11 @@ def write_research_outputs(
     run_dir = output_dir / run_date.isoformat() / "research"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    leads = research_engine.score_leads(sources, limit=limit)
+    leads = research_engine.score_leads(sources, limit=limit, run_date=run_date)
     files = {
-        "daily_research_brief.md": research_engine.build_daily_brief(run_date, leads, registry, companies),
+        "daily_research_brief.md": research_engine.build_daily_brief(
+            run_date, leads, registry, companies
+        ),
         "source_map.md": research_engine.build_source_map(registry),
         "company_watchlist.md": research_engine.build_company_map(companies),
         "scored_leads.csv": research_engine.build_scored_leads_csv(leads),

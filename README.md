@@ -190,12 +190,30 @@ To activate them locally, copy `.cursor/mcp.example.json` to `.cursor/mcp.json`,
 python3 -m unittest discover
 ```
 
-## Deploy on Vercel
+## Use the web application
 
-The project can be deployed as a static site because it includes:
+The Vercel deployment is now a functional, local-first personal editorial desk rather than a static marketing page. It supports:
+
+- adding and removing research sources;
+- automatic lead scoring and missing-detail warnings;
+- a ranked daily priority queue;
+- browser persistence between visits;
+- CSV source imports and scheduler CSV exports; and
+- one-click sample data for testing the workflow.
+
+No account is required in this first usable release. Data is stored in the current browser's `localStorage`, so use CSV export for portable backups and do not expect data to sync across browsers or devices yet. The hosted-account and database path is documented in `plan.md`.
+
+Run it locally with:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000`. The deployable web files are:
 
 - `index.html`
 - `styles.css`
+- `app-core.js`
 - `script.js`
 - `vercel.json`
 
@@ -206,4 +224,98 @@ If `https://everyday-web3.vercel.app/` shows 404, the most likely causes are:
 3. A deployment has not been triggered yet.
 4. The domain is attached to a different Vercel project.
 
-Merge this branch or configure Vercel to deploy `cursor/everyday-web3-content-engine-4d63`, then trigger a redeploy.
+Merge the feature branch into the branch Vercel tracks, then trigger a redeploy if automatic Git deployments are disabled.
+## One-command daily desk
+
+Run the full operator workflow when you want research, draft generation, quality checks, a dashboard, and a scheduler export in one pass:
+
+```bash
+python3 -m everyday_web3 daily \
+  --input data/sources.sample.csv \
+  --config config/everyday_web3.json \
+  --registry config/source_registry.json \
+  --watchlist data/company_watchlist.sample.csv \
+  --output output \
+  --date 2026-06-07
+```
+
+The daily command writes the normal research and platform outputs plus:
+
+```text
+output/YYYY-MM-DD/
+├── editorial_dashboard.md
+├── draft_quality_report.md
+├── scheduler_export.csv
+├── content_calendar.md
+├── source_briefs.json
+├── weekly_roundup.md
+├── platforms/
+└── research/
+```
+
+Use `editorial_dashboard.md` as the daily command center. It shows top leads, morning candidates, evening/community candidates, drafts ready to schedule, missing information warnings, and next actions.
+
+## Draft quality checks
+
+Preview production-readiness warnings without writing the full daily output:
+
+```bash
+python3 -m everyday_web3 lint-drafts \
+  --input data/sources.sample.csv \
+  --date 2026-06-07
+```
+
+The checker flags missing source links, missing event dates or locations, repeated hooks, overlong X thread segments, missing CTAs, and missing Pinterest alt text.
+
+## Scheduler export
+
+Create a scheduler-friendly CSV for tools such as Buffer, Typefully, Publer, Hypefury, Metricool, Later, or manual calendar upload:
+
+```bash
+python3 -m everyday_web3 export-scheduler \
+  --input data/sources.sample.csv \
+  --output output \
+  --date 2026-06-07 \
+  --scheduler buffer
+```
+
+The export includes platform, scheduled date, draft status, campaign, post text, source URL, and media notes.
+
+## Editorial database fields
+
+The source input supports operational fields beyond the original content fields:
+
+| Field | Purpose |
+| --- | --- |
+| `status` | `new`, `reviewed`, `selected`, `drafted`, `scheduled`, `published`, or `archived` |
+| `assigned_to` | Person responsible for the lead or draft |
+| `publish_date` | Intended publication date |
+| `platform_status` | Per-channel production notes |
+| `performance_notes` | Qualitative notes after publishing |
+| `impressions` | Reach after publishing |
+| `engagements` | Likes, replies, comments, or reactions |
+| `clicks` | Link clicks |
+| `saves` | Saves/bookmarks, especially useful for Pinterest and Instagram |
+| `comments` | Comment count or qualitative response volume |
+| `winning_hook` | Hook that worked best |
+| `repurpose` | Mark `yes` to boost this item for future reuse |
+
+The research scorer now uses freshness, source quality, and performance feedback in addition to priority, high-signal keywords, links, locations, dates, people, and category fit.
+
+## Editorial desk templates
+
+Use these files to move from CSV to an operating database:
+
+- `plan.md` - product roadmap and operating loop.
+- `docs/notion_schema.md` - Notion database structure.
+- `docs/airtable_schema.md` - Airtable table structure and views.
+- `templates/notion_sources_import.csv` - starter import file.
+- `templates/airtable_sources_import.csv` - starter import file.
+
+Recommended rollout:
+
+1. Run the manual CSV workflow for one week.
+2. Move sources into Notion or Airtable once the statuses are clear.
+3. Add Firecrawl and Exa after you know which sources need automation.
+4. Use the scheduler export once the publishing cadence is stable.
+5. Review performance weekly and mark winners with `repurpose=yes`.
